@@ -43,19 +43,19 @@ def index(): return render_template('main.html')
 @app.route('/data',methods=['GET','POST'])
 def data():
    if request.method=='POST':
-      inp=request.form.get('inp')
-      inputs=preprocessing(inp)
-      afterVec=vectorization([inp]).toarray()
-      result=trainedModel.predict(afterVec)
       
-      if result["neg"]!=0:
-         return render_template('main.html',message="negative")
+      inp=request.form.get('inp')
+      print(inp)
+      
+      inputs=preprocessing(inp)
+      afterVec=vectorization(inputs)
+      result=trainedModel.predict(afterVec)[0]
+      
+      if result == "negative":
+         return render_template('main.html',message="egative")
       else:
          return render_template('main.html',message="positive")
-      
-      
-      
-      return render_template('main.html')
+   return render_template('main.html')
 #   return 'Hello, World!'
 
 if __name__ == '__main__':

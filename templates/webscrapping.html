@@ -13,18 +13,13 @@
         <div class="container-lg">
             <h1>ANALYSIS</h1>
             <form method="POST"  action="/data" class="form">
-                <div class="inputText">
-                <input type="text" id="inp" name="inp" placeholder=" Enter the comments">
-            </div>
+                <div>
+                <input type="text" id="code" name="code" placeholder=" Enter the comments"></div>
                 <div><input type="submit" name="submit" id="btn" class="form-group">
                 </div>
             </form>
-            <div class="outputClass">
-                <h1 class="output">{{message}}</h1>
-                <h2 class="ouput1">{{percentage}} </h2>
-
-            </div>
-            
+            <h1 class="output">{{message}} </h1>
+            <h2 class="input">{{percentage}} </h2>
         </div>
     </div>
     

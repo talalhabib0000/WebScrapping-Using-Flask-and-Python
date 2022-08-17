@@ -23,8 +23,6 @@
 			);
 
 		
-			Delete Movies where MovieID='tt0468569';
-
 			Select * from Movies
 
 			SELECT FORMAT (getdate(), 'MMM dd yyyy') as date
@@ -71,7 +69,7 @@ Select * from Prediction
 				  add constraint FK_Mov_Prediction_Cascade_Delete
 				  foreign key (MovieID) references Movies(MovieID) on delete cascade
 
-				  Delete from Movies where MovieID='tt1877830'
+				  
 
 				  
 				  Select * from Movies
@@ -91,4 +89,44 @@ Select * from Prediction
 
 Select * from Prediction 
 
+Alter Table Prediction 
+Add Percentage int
 
+Select * from Prediction
+
+ALTER TABLE Prediction
+DROP COLUMN PredictedDate;
+
+Alter Table Prediction
+Add PredictedDate Date
+
+
+Alter Table Prediction
+ALTER COLUMN Percentage int
+
+Delete Movies where MovieID='tt1877830';
+
+Select * from 
+Prediction
+
+Select * from Prediction 
+WHERE PredictedDate > DATEADD(day, -30, GETDATE())
+
+	USE Movies;
+DELETE FROM Prediction
+WHERE PredictedDate < DATEADD(day,-30,GETDATE())
+
+
+
+
+
+
+Select  Movies.MovieID,
+Movies.MovieName,
+Prediction.PredictionResult,
+Prediction.PredictedDate 
+from Movies
+Join Prediction 
+on 
+Movies.MovieID=Prediction.MovieID 
+Where  PredictedDate > DATEADD(day, -30, GETDATE())

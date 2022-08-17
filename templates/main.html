@@ -30,6 +30,7 @@
                         <th scope="col">Movie ID</th>
                         <th scope="col">Movie Name</th>
                         <th scope="col">Result</th>
+                        <th scope="col">Percentage</th>
                         <th scope="col">Predicted Date</th>
                         </tr>
                     </thead>
@@ -39,6 +40,7 @@
                                 <td>{{ movie.MovieID }}</th>
                                 <td>{{ movie.MovieName }}</td>
                                 <td>{{ movie.PredictionResult }}</td>
+                                <td>{{ movie.Percentage }}</td>
                                 <td>{{ movie.PredictedDate }}</td>
                             </tr>
                         {% endfor %}

@@ -17,12 +17,15 @@ from datetime import datetime
 # ----------------------------------------------------------------
 # Defining Connection
 # -----------------------------------------------------------------
+
+
 def connection():
     s = 'DESKTOP-B3U0GP9\SQLEXPRESS'  # Your server name
     d = 'Movies'
     cstr = 'DRIVER={SQL Server};SERVER='+s+';DATABASE='+d
     conn = odbc.connect(cstr)
     return conn
+
 
 conn = connection()
 cursor = conn.cursor()
@@ -32,12 +35,16 @@ vectorizer = pickle.load(open("vectorizer", 'rb'))
 # ----------------------------------------------------------------
 # Vectorization
 # -----------------------------------------------------------------
+
+
 def vectorization(preprocessedInput):
     preprocessedInput = vectorizer.transform(preprocessedInput).toarray()
     return preprocessedInput
 # ----------------------------------------------------------------
 # Web Scrapping Movie code and movie name
 # -----------------------------------------------------------------
+
+
 def webScrapping(userInput):
     safe_string = urllib.parse.quote_plus(userInput)
 # Request Page Source for URL
@@ -66,7 +73,7 @@ def webScrapping(userInput):
 # -----------------------------------------------------------------
 
 
-def getMessage(userInput):
+def ScrappReviews(userInput):
     scrapedMovieReviews, movieCode = webScrapping(userInput)
     if(scrapedMovieReviews == []):
         return "No movie Found please try again.", f"0 %", []
@@ -77,22 +84,28 @@ def getMessage(userInput):
     totalPos = total['positive']
     totalNeg = total['negative']
     totalSum = totalPos + totalNeg
-    
     if(totalPos >= totalNeg):
         overall = "Positive"
-        totalPercentage=round((totalPos/totalSum)*100)
+        totalPercentage = round((totalPos/totalSum)*100)
     else:
         overall = "Negative"
-        totalPercentage=round((totalNeg/totalSum)*100)
+        totalPercentage = round((totalNeg/totalSum)*100)
 
+    return overall, totalPercentage, movieCode
+
+
+def getMessage(userInput):
+
+    overall, totalPercentage, movieCode = ScrappReviews(userInput)
     movies = []
     cursor.execute(
         "Insert into dbo.movies(MovieID,MovieName) Values(?,?)", movieCode, userInput)
     cursor.execute(
-        "Insert into dbo.prediction(MovieID,PredictionResult,PredictedDate) values(?,?,GetDate())",movieCode,overall)    
+        "Insert into dbo.prediction(MovieID,PredictionResult,Percentage,PredictedDate) values(?,?,?,GetDate())", movieCode, overall, totalPercentage)
     conn.commit()
     cursor.execute(
-        "Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult, Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID ")
+        "Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.percentage ,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID ")
     for row in cursor.fetchall():
-        movies.append({"MovieID": row[0], "MovieName": row[1],"PredictionResult": row[2], "PredictedDate": row[3]})
+        movies.append({"MovieID": row[0], "MovieName": row[1],
+                    "PredictionResult": row[2], "Percentage": row[3], "PredictedDate": row[4]})
         return f"Mostly Comments are: '{overall} '", f"\n Percentage: {totalPercentage} %", movies

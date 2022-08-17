@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from libraries import *
+from lib import *
 
 app = Flask(__name__)
 

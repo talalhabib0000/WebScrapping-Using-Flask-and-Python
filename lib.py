@@ -103,8 +103,9 @@ def getMessage(userInput):
     cursor.execute(
         "Insert into dbo.prediction(MovieID,PredictionResult,Percentage,PredictedDate) values(?,?,?,GetDate())", movieCode, overall, totalPercentage)
     conn.commit()
+    # Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.percentage ,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID
     cursor.execute(
-        "Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.percentage ,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID ")
+        "SELECT MovieID,(SELECT Movies.MovieName from Movies where Movies.MovieID = Prediction.MovieID) as MovieName,PredictionResult,Percentage,PredictedDate from Prediction Group by MovieID,PredictionResult,Percentage,PredictedDate ")
     for row in cursor.fetchall():
         movies.append({"MovieID": row[0], "MovieName": row[1],
                     "PredictionResult": row[2], "Percentage": row[3], "PredictedDate": row[4]})

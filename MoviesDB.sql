@@ -116,17 +116,105 @@ WHERE PredictedDate > DATEADD(day, -30, GETDATE())
 DELETE FROM Prediction
 WHERE PredictedDate < DATEADD(day,-30,GETDATE())
 
-
-
-
-
-
 Select  Movies.MovieID,
 Movies.MovieName,
 Prediction.PredictionResult,
-Prediction.PredictedDate 
+Prediction.PredictedDate
 from Movies
 Join Prediction 
 on 
 Movies.MovieID=Prediction.MovieID 
-Where  PredictedDate > DATEADD(day, -30, GETDATE())
+
+
+
+
+
+Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.Percentage,Prediction.PredictedDate, 
+CASE WHEN PredictedDate <=  DATEADD(DAY, 30, GETDATE()) 
+Then ('Result')
+Else 'No Result'
+End As UpdatedDate
+from Movies
+Join Prediction 
+on 
+Movies.MovieID=Prediction.MovieID 
+
+
+
+
+
+Where  PredictedDate <  DATEADD(DAY, 30, GETDATE())
+
+select DATEADD(DAY, 30, GETDATE())
+
+
+
+
+
+Select  *, 
+CASE WHEN PredictedDate <=  DATEADD(DAY, 30, GETDATE()) 
+Then (
+Select  Movies.MovieID,
+Movies.MovieName,
+Prediction.PredictionResult,
+Prediction.PredictedDate
+from Movies
+Join Prediction 
+on 
+Movies.MovieID=Prediction.MovieID 
+)
+Else 'No Result'
+End As UpdatedDate
+from Movies
+Join Prediction 
+on 
+Movies.MovieID=Prediction.MovieID 
+
+
+Select  
+Movies.MovieID,
+Movies.MovieName,
+Prediction.PredictionResult,
+Prediction.Percentage,
+Prediction.PredictedDate,
+DATEADD(day, -30, GETDATE()) as LastDate
+from Movies
+Join Prediction 
+on 
+Movies.MovieID=Prediction.MovieID 
+WHERE 
+PredictedDate <= DATEADD(day, 30, GETDATE()) 
+OR  
+PredictedDate <= DATEADD(month, 1, GETDATE())
+
+Select * from (
+Select 
+Movies.MovieName,
+Prediction.PredictedDate,
+PredictionResult,
+Prediction.Percentage
+from
+	(
+Select MovieID from Movies group by MovieID
+) m
+join Prediction on Prediction.MovieID=m.MovieID
+)as t
+
+
+Select *
+from(
+	Select	 
+		MovieName,
+		PredictionResult,
+		PredictedDate,
+		percentage
+	from
+	(
+		Select 
+			*
+		from Movies group by MovieID,MovieName
+	) PredictedResult 
+	join 
+	Prediction c on c.MovieID = PredictedResult.MovieID 
+
+) as result 

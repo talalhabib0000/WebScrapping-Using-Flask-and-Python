@@ -29,7 +29,7 @@ def connection():
 
 conn = connection()
 cursor = conn.cursor()
-trainedModel = pickle.load(open("./trainedModelNews", 'rb'))
+trainedModel = pickle.load(open("trainedModelNews", 'rb'))
 vectorizer = pickle.load(open("vectorizer", 'rb'))
 
 # ----------------------------------------------------------------
@@ -95,17 +95,24 @@ def ScrappReviews(userInput):
 
 
 def getMessage(userInput):
-
-    overall, totalPercentage, movieCode = ScrappReviews(userInput)
     movies = []
-    cursor.execute(
+    overall, totalPercentage, movieCode = ScrappReviews(userInput)
+    query1=cursor.execute("Select Movies.MovieName from Movies where Movies.MovieName =Movies.MovieName")
+    
+    if (query1== userInput):
+        cursor.execute("Select Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.Percentage,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID WHERE DATEDIFF(day,PredictedDate,GETDATE()) <= 30 AND Movies.MovieName =Movies.MovieName")
+    else:
+        cursor.execute(
         "Insert into dbo.movies(MovieID,MovieName) Values(?,?)", movieCode, userInput)
-    cursor.execute(
+        cursor.execute(
         "Insert into dbo.prediction(MovieID,PredictionResult,Percentage,PredictedDate) values(?,?,?,GetDate())", movieCode, overall, totalPercentage)
     conn.commit()
     # Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.percentage ,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID
     cursor.execute(
-        "SELECT MovieID,(SELECT Movies.MovieName from Movies where Movies.MovieID = Prediction.MovieID) as MovieName,PredictionResult,Percentage,PredictedDate from Prediction Group by MovieID,PredictionResult,Percentage,PredictedDate ")
+        "Select Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.Percentage,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID WHERE DATEDIFF(day,PredictedDate,GETDATE()) <= 30 AND Movies.MovieName = Movies.MovieName"
+    )
+
+
     for row in cursor.fetchall():
         movies.append({"MovieID": row[0], "MovieName": row[1],
                     "PredictionResult": row[2], "Percentage": row[3], "PredictedDate": row[4]})

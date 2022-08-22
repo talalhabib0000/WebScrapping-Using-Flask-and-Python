@@ -1,0 +1,63 @@
+# Python3 Program to check whether a
+# given key already exists in a dictionary.
+from email.message import Message
+import pandas as pd
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import numpy as np
+import re  # support regular expressions
+from bs4 import BeautifulSoup
+import requests
+import urllib.parse
+from flask import Flask, render_template, request
+import pickle
+from nltk.corpus import stopwords
+from collections import Counter
+import pyodbc as odbc
+from flask_sqlalchemy import sqlalchemy
+from datetime import datetime
+
+# # Function to print sum
+# def checkKey(dict, key):
+
+# 	if key in dict.keys():
+        
+# 		print("Present, ", end =" ")
+# 		print("value =", dict[key])
+# 	else:
+# 		print("Not present")
+
+# # Driver Code
+# dict = {'a': 0, 'b':200, 'c':300}
+
+# # res = not any(test_dict.values())
+  
+# # printing result 
+# # print("Does all keys have 0 value ? : " + str(res))    
+
+# print(list(dict.values()))
+# if (dict.get('a')==0 or dict.get('a')==None):
+#     dict.update({'a':1,'b':2})
+#     print(dict)
+# else:
+    
+#     print('not found')
+# # if 'a' in dict.keys() <1:
+# #     print("exists")
+# # else:
+# #     print("not exist")    
+
+# # key = 'b'
+# # checkKey(dict, key)
+
+# # key = 'w'
+# # checkKey(dict, key)  
+def connection():
+    s = 'DESKTOP-B3U0GP9\SQLEXPRESS'  # Your server name
+    d = 'Movies'
+    cstr = 'DRIVER={SQL Server};SERVER='+s+';DATABASE='+d
+    conn = odbc.connect(cstr)
+    return conn
+conn = connection()
+cursor = conn.cursor()
+    
+cursor.execute("Select * from movies")

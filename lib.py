@@ -55,7 +55,7 @@ def webScrapping(userInput):
     scraped_movies = soup.find('td', class_="result_text")
 # scraped_movies
     if(scraped_movies == None):
-        print("No Record Found")
+        return [],''
     else:
         movieCode = scraped_movies.find('a')['href'].split('/')[2]
     url1 = f"https://www.imdb.com/title/{movieCode}/reviews/"
@@ -67,29 +67,31 @@ def webScrapping(userInput):
     for scraped_remark in scraped_remarks:
         scraped_remark = scraped_remark.get_text().replace('\n', "")
         reviews.append(scraped_remark)
-    return reviews, movieCode
+        return reviews,movieCode
 # ----------------------------------------------------------------
 # Showing Output
 # -----------------------------------------------------------------
 
 
 def ScrappReviews(userInput):
-    scrapedMovieReviews, movieCode = webScrapping(userInput)
+    scrapedMovieReviews, movieCode= webScrapping(userInput)
     if(scrapedMovieReviews == []):
-        return "No movie Found please try again.", f"0 %", []
+        return "No movie Found Please Try Again.",''
     afterVec = vectorization(scrapedMovieReviews)
     result1 = trainedModel.predict(afterVec)
     return result1,movieCode
 
-
 def PredictPercentage(userInput):
     result1, movieCode = (ScrappReviews(userInput))
-    total = dict(Counter(result1))
-    if (total.get('positive') == 0 or total.get('positive') == None):
+    if(movieCode==''):
+        return "No movie Found please try again.", f"0", []
+    else: 
+        total = dict(Counter(result1))
+    if (total.get('positive') == None):
         {
             total.update({'positive': 1})
         }
-    elif(total.get('negative') == 0 or total.get('negative') == None):
+    elif(total.get('negative') == None):
         {
             total.update({'negative': 1})
         }
@@ -109,7 +111,10 @@ def PredictPercentage(userInput):
 def getMessage(userInput):
     movies = []
     overall, totalPercentage, movieCode = PredictPercentage(userInput)
-    cursor.execute(
+    if(movieCode==[]):
+        return f"'{overall} '", f"\n Percentage: {totalPercentage} %", movies
+    else:
+        cursor.execute(
         "Select Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.Percentage,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID WHERE DATEDIFF(day,GETDATE(),PredictedDate) <= 30 AND Movies.MovieName like '%'+?+'%'", [
             userInput]
     )
@@ -118,7 +123,7 @@ def getMessage(userInput):
                     "MovieID": row[0], "MovieName": row[1],
                     "PredictionResult": row[2], "Percentage": row[3], "PredictedDate": row[4]})
         return f"Mostly Comments are: '{overall} '", f"\n Percentage: {totalPercentage} %", movies
-    
+        # cursor.execute("Update Prediction Set Prediction.PredictionResult='+"overall"+',Prediction.Percentage=?,Prediction.PredictedDate=GetDate() from Prediction where DATEDIFF(day,GETDATE(),PredictedDate) >= 30 ", (overall, totalPercentage))
     cursor.execute("Update Prediction Set Prediction.PredictionResult=?,Prediction.Percentage=?,Prediction.PredictedDate=GetDate() from Prediction where DATEDIFF(day,GETDATE(),PredictedDate) >= 30 ", (overall, totalPercentage))
     cursor.execute(
         "Select Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.Percentage,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID WHERE DATEDIFF(day,GETDATE(),PredictedDate) <= 30 AND Movies.MovieName like '%'+?+'%'", [
@@ -134,5 +139,9 @@ def getMessage(userInput):
     cursor.execute(
         "Insert into dbo.prediction(MovieID,PredictionResult,Percentage,PredictedDate) values(?,?,?,GetDate())", movieCode, overall, totalPercentage)
     conn.commit()
+    for row in cursor.fetchall():
+        movies.append({
+                    "MovieID": row[0], "MovieName": row[1],
+                    "PredictionResult": row[2], "Percentage": row[3], "PredictedDate": row[4]})
     # Select  Movies.MovieID,Movies.MovieName,Prediction.PredictionResult,Prediction.percentage ,Prediction.PredictedDate from Movies Join Prediction on Movies.MovieID=Prediction.MovieID
     return f"Mostly Comments are: '{overall} '", f"\n Percentage: {totalPercentage} %", movies

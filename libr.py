@@ -52,20 +52,33 @@ def webScrapping(userInput):
     page = requests.get(url)
 # Displaying Page Source Code
     soup = BeautifulSoup(page.content, "html.parser")
-    scraped_movies = soup.find('td', class_="result_text")
+    # scraped_movies = soup.find('td', class_="result_text")
     # names = []
     # for scraped_names in scraped_movies:
     #     scraped_names = scraped_names.get_text().replace('\n', "")
     #     names.append(scraped_remark) 
 # scraped_movies
-    if(scraped_movies == None):
-        return [],''
-    else:
-        movieCode = scraped_movies.find('a')['href'].split('/')[2]
+    sections=soup.findAll('div', class_="findSection")
+    for section in sections:
+        sectionContent=section.contents
+        sectionHeader=sectionContent[1].contents
+        scrap_Movies=section.findAll('td', class_="result_text")
+        if(scrap_Movies == None):return [],''
+        else:
+            if sectionHeader[1]=='Titles':
+                movies=[]
+        for movie in scrap_Movies:
+            movie=movie.get_text().replace('\n',"")
+            movie=movie.strip(" ")
+            movies.append(movie)
+        movieCode=[]
+        for code in scrap_Movies:
+            code =  code.find('a').get('href').split('/')[2]
+            movieCode.append(code)
         url1 = f"https://www.imdb.com/title/{movieCode}/reviews/"
         pages = requests.get(url1)
         codes=[]
-        for  movieCode in scraped_movies:
+        for  movieCode in scrap_Movies:
             scraped_remark = scraped_remark.get_text().replace('\n', "")
         
         codes.append(movieCode)

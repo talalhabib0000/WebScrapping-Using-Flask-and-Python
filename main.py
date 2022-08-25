@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from lib import *
+from libr import *
 
 app = Flask(__name__)
 
@@ -18,7 +18,6 @@ def data():
         return render_template('main.html', message=message, percentage=percentage, movies=movies)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == '__main__':    app.run(debug=True)
 
 conn.close()
